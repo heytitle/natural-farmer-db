@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8"/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="fonts/boon/style.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?region=TH&key=AIzaSyCYzBpsoydndUQp2K6IUrqkgXDi4CmgfIw"></script>
+    <script type="text/javascript" src="scripts/gsheet2json.js"></script>
+    <script type="text/javascript">
+
+        function initialize() {
+            var mapOptions = {
+                center: new google.maps.LatLng(13.7500, 100.4833),
+                zoom: 6,
+                panControl: false,
+                zoomControl: false,
+                scaleControl: false,
+                streetViewControl: false,
+                mapTypeControl: false
+            };
+            map = new google.maps.Map(
+                document.getElementById("map-canvas"),
+                mapOptions
+            );
+
+            var sheet = new spreadSheet(
+                "https://docs.google.com/spreadsheet/ccc?key=1oNWnlhfw-ZsHnkQhGe7qmrQ-6c_R45RMRBjvXJasO5Q&gid=0",
+                [ 'name','lat','lng', 'area' ],
+                function(data) {
+                    addMaker(data.getAsObjects());
+                }
+            );
+
+        }
+
+        function addMaker(data) {
+            for( var i = 0; i< data.length; i++ ) {
+                var obj = data[i];
+
+
+                var pos = new google.maps.LatLng( parseFloat(obj.lat), parseFloat(obj.lng) );
+                var marker = new google.maps.Marker({
+                    position: pos,
+                    title: obj.name,
+                    zindex: 1,
+                    map: map
+                });
+
+                var content = '<div class="maker-info">'
+                    + '<div class="maker-info__title">'+obj.name+'</div>'
+                    + 'ที่นา '+ obj.area +' ไร่'
+                    + '</div>'
+
+                marker.infoWindow = new google.maps.InfoWindow({
+                    content: content,
+                    maxwidth: 200
+                });
+
+                bindClickMaker( marker );
+            }
+        }
+
+        var currentInfo;
+        function bindClickMaker( marker ) {
+                google.maps.event.addListener( marker, 'click', function() {
+                    if( currentInfo ) {
+                        currentInfo.close();
+                    }
+
+                    currentInfo = marker.infoWindow
+                    currentInfo.open(map,marker);
+                });
+        }
+
+
+        google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+  </head>
+  <body>
+        <div id="map-canvas"></div>
+        <div id="panel">
+            <div class="panel__title center">ฐานข้อมูลชาวนาธรรมชาติ</div>
+            <div class="panel__section">
+                <div class="center">
+                    <img src="images/happy-farmer.png" height="100"/>
+                </div>
+
+                What is `Safe Rice` ?
+                .........
+            </div>
+            <div class="panel__section center">
+                <div class="panel__section__header">พื้นที่นาทั้งหมด</div>
+                <h1>
+                    410.5 ไร่
+                </h1>
+            </div>
+            <!--
+            <div class="panel__section center">
+                <div class="panel__section__header">Region:</div>
+                <select class="region">
+                    <option>North</option>
+                </select>
+            </div>
+            -->
+            <div class="panel__section panel__section--credit center">
+               © 2557, ธรรมธุรกิจ 
+            </div>
+        </div>
+  </body>
+</html>
